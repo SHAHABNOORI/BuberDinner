@@ -1,9 +1,7 @@
-using BuberDinner.Api.Errors;
+using BuberDinner.Api.Common.Errors;
 using BuberDinner.Application;
 using BuberDinner.Infrastructure;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
-using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,11 +34,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseExceptionHandler("/error");
 
-app.Map("/error", (HttpContext httpContext) =>
-{
-    var exception = httpContext.Features.Get<IExceptionHandlerFeature>()?.Error;
-    return Results.Problem(title: exception?.Message);
-});
+//app.Map("/error", (HttpContext httpContext) =>
+//{
+//    var exception = httpContext.Features.Get<IExceptionHandlerFeature>()?.Error;
+//    return Results.Problem(title: exception?.Message);
+//});
 
 app.UseHttpsRedirection();
 
