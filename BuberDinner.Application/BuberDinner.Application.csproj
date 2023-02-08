@@ -7,13 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Authentication\Queries\Login\" />
     <Folder Include="Common\Interfaces\Persistence\" />
     <Folder Include="Common\Interfaces\Services\" />
-    <Folder Include="Services\Authentication\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentResults" Version="3.15.1" />
+    <PackageReference Include="MediatR" Version="11.1.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
     <PackageReference Include="OneOf" Version="3.0.223" />
   </ItemGroup>

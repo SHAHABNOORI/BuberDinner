@@ -1,6 +1,9 @@
-using BuberDinner.Application.Services.Authentication;
+using BuberDinner.Application.Authentication.Commands.Register;
+using BuberDinner.Application.Authentication.Common;
+using BuberDinner.Application.Authentication.Queries.Login;
 using BuberDinner.Contracts.Authentication;
 using ErrorOr;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BuberDinner.Api.Controllers;
@@ -9,26 +12,52 @@ namespace BuberDinner.Api.Controllers;
 [Route("auth")]
 public class AuthenticationController : ApiController
 {
-    private readonly IAuthenticationService _authenticationService;
+    private readonly ISender _mediator;
 
-    public AuthenticationController(IAuthenticationService authenticationService)
+    public AuthenticationController(IMediator mediator)
     {
-        _authenticationService = authenticationService;
+        _mediator = mediator;
     }
 
+
+    #region Commented
+
+    //[HttpPost("login")]
+    //public IActionResult Login(LoginRequest request)
+    //{
+    //    var loginResult = _authenticationService.Login(request.Email, request.Password);
+    //    var response = new AuthenticationResponse(loginResult.User.Id, loginResult.User.FirstName, loginResult.User.LastName,
+    //        loginResult.User.Email, loginResult.Token);
+    //    return Ok(response);
+    //}
+
+    #endregion
+
+
     [HttpPost("register")]
-    public IActionResult Register(RegisterRequest request)
+    public async Task<IActionResult> Register(RegisterRequest request)
     {
-        ErrorOr<AuthenticationResult> registerResult =
-            _authenticationService.Register(request.FirstName, request.LastName, request.Email, request.Password);
+
+        var command = new RegisterCommand(request.FirstName, request.LastName, request.Email, request.Password);
+
+        ErrorOr<AuthenticationResult> registerResult = await _mediator.Send(command);
+
+        #region Commented
+
+        //ErrorOr <AuthenticationResult> registerResult =
+        //    _authenticationCommandService.Register(request.FirstName, request.LastName, request.Email, request.Password);
 
         //return registerResult.MatchFirst(
         //    authResult => Ok(MapAuthResult(authResult)),
         //    firstError => Problem(statusCode: StatusCodes.Status409Conflict, title: firstError.Description));
 
+        #endregion
+
         return registerResult.Match(
             authResult => Ok(MapAuthResult(authResult)),
             Problem);
+
+        #region Commented
 
         //Result<AuthenticationResult> registerResult =
         //    _authenticationService.Register(request.FirstName, request.LastName, request.Email, request.Password);
@@ -60,6 +89,8 @@ public class AuthenticationController : ApiController
         //}
 
         //return Problem(statusCode: StatusCodes.Status409Conflict, title: "Email already exist.");
+
+        #endregion
     }
 
     private static AuthenticationResponse MapAuthResult(AuthenticationResult authResult)
@@ -68,22 +99,12 @@ public class AuthenticationController : ApiController
             authResult.User.Email, authResult.Token);
     }
 
-    //[HttpPost("login")]
-    //public IActionResult Login(LoginRequest request)
-    //{
-    //    var loginResult = _authenticationService.Login(request.Email, request.Password);
-    //    var response = new AuthenticationResponse(loginResult.User.Id, loginResult.User.FirstName, loginResult.User.LastName,
-    //        loginResult.User.Email, loginResult.Token);
-    //    return Ok(response);
-    //}
-
-
     [HttpPost("login")]
-    public IActionResult Login(LoginRequest request)
+    public async Task<IActionResult> Login(LoginRequest request)
     {
-        var authResult = _authenticationService.Login(request.Email, request.Password);
+        var query = new LoginQuery(request.Email, request.Password);
+        var authResult = await _mediator.Send(query);
         return authResult.Match(result => Ok(MapAuthResult(result)),
             Problem);
-
     }
 }
